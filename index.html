@@ -4275,6 +4275,81 @@ button{min-height:44px}
   }
 </style>
 
+
+<style id="mobile-age-number-visibility-v82">
+  /*
+    On phones, keep the cake and the 25 card above the large Ace animation.
+    Ace moves in front only for a very short contact moment.
+  */
+  @media(max-width:650px){
+    .cake-stage{
+      overflow:visible!important;
+    }
+
+    .cake{
+      z-index:45!important;
+    }
+
+    .age-candles{
+      z-index:70!important;
+      isolation:isolate;
+    }
+
+    .age-candle,
+    .age-candle .digit-card,
+    .age-candle .digit{
+      position:relative;
+      z-index:71!important;
+    }
+
+    .age-candle .digit-card{
+      background:#fff8e9!important;
+      box-shadow:
+        0 0 0 3px rgba(255,248,233,.86),
+        0 6px 14px rgba(64,18,35,.34)!important;
+    }
+
+    .watercolor-ace{
+      z-index:30!important;
+    }
+
+    .watercolor-ace.video-ready .ace-video-stage,
+    .watercolor-ace.video-playing .ace-video-stage{
+      transform:translate3d(12px,7px,0) scale(.93)!important;
+      transform-origin:center bottom!important;
+    }
+
+    /* Only the hand-contact frames temporarily pass in front of the card. */
+    .watercolor-ace.mobile-contact-front{
+      z-index:55!important;
+    }
+
+    .watercolor-ace .ace-speech{
+      z-index:90!important;
+    }
+  }
+
+  @media(max-width:410px){
+    .watercolor-ace.video-ready .ace-video-stage,
+    .watercolor-ace.video-playing .ace-video-stage{
+      transform:translate3d(2px,10px,0) scale(.86)!important;
+    }
+
+    .age-candle{
+      width:72px!important;
+    }
+
+    .age-candle .digit-card{
+      width:72px!important;
+      height:34px!important;
+    }
+
+    .age-candles{
+      gap:10px!important;
+    }
+  }
+</style>
+
 </head>
 <body>
 
@@ -4600,7 +4675,7 @@ button{min-height:44px}
     document.getElementById('mission-complete').classList.remove('show');
 
     const hand = document.getElementById('hand-figure');
-    hand.classList.remove('approach','retreat','no-shake','say-no','reach-two','place-three','fluid-swap','rig-walk','rig-action','video-ready','video-playing');
+    hand.classList.remove('approach','retreat','no-shake','say-no','reach-two','place-three','fluid-swap','rig-walk','rig-action','video-ready','video-playing','mobile-contact-front');
     document.querySelector('.cake-stage').classList.remove('fluid-swap');
 
     const tens = document.getElementById('digit-tens');
@@ -4767,7 +4842,12 @@ button{min-height:44px}
       stage.classList.add('speed-burst');
     }, 1700);
 
-    // Delay the 2 removal slightly so Ace's hand visibly reaches the number card first.
+    // On mobile the cake stays above Ace so 25 remains readable.
+    // Bring Ace forward only for the instant his hand meets the 2.
+    later(()=>{
+      hand.classList.add('mobile-contact-front');
+    }, 2520);
+
     later(()=>{
       digit.classList.add('hidden-for-pick');
       replayClass(document.getElementById('cake'),'wiggle');
@@ -4775,11 +4855,19 @@ button{min-height:44px}
     }, 2580);
 
     later(()=>{
+      hand.classList.remove('mobile-contact-front');
+    }, 2700);
+
+    later(()=>{
       stage.classList.remove('fire-burst','speed-burst');
       void stage.offsetWidth;
       stage.classList.add('fire-burst','speed-burst');
       burstAceFire(18);
     }, 3040);
+
+    later(()=>{
+      hand.classList.add('mobile-contact-front');
+    }, 3560);
 
     later(()=>{
       digit.textContent = '3';
@@ -4792,8 +4880,12 @@ button{min-height:44px}
     }, 3620);
 
     later(()=>{
+      hand.classList.remove('mobile-contact-front');
+    }, 3780);
+
+    later(()=>{
       stage.classList.remove('speed-burst','fire-burst');
-      hand.classList.remove('video-playing');
+      hand.classList.remove('video-playing','mobile-contact-front');
       aceVideoTimers = [];
       if(typeof done === 'function') done();
     }, 4260);
